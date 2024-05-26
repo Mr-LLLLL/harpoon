@@ -5,6 +5,9 @@ local finders = require("telescope.finders")
 local pickers = require("telescope.pickers")
 local conf = require("telescope.config").values
 local harpoon = require("harpoon")
+local utils = require "telescope.utils"
+local strings = require "plenary.strings"
+local action_utils = require("telescope.actions.utils")
 
 local function filter_empty_string(list)
     local next = {}
@@ -26,19 +29,36 @@ local generate_new_finder = function()
                 .. entry.context.row
                 .. ":"
                 .. entry.context.col
-            local displayer = entry_display.create({
-                separator = " - ",
-                items = {
-                    { width = 2 },
-                    { width = 50 },
-                    { remaining = true },
-                },
-            })
+
+            local display_array = {}
+            local widths = {}
+
+            local icon, icon_hl = utils.get_devicons(entry.value)
+            icon = icon ~= "" and icon or " "
+            table.insert(display_array, { icon, icon_hl })
+            table.insert(widths, { width = strings.strdisplaywidth(icon) })
+
+            local path_display, path_style = utils.transform_path({}, line)
+            if path_style and type(path_style) == "table" and #path_style > 1 then
+                local filename = path_display:sub(1, path_style[1][1][1])
+                table.insert(display_array, filename)
+                table.insert(widths, { width = #filename })
+
+                local hl = path_style[1][2]
+                local parent_path = path_display:sub(path_style[1][1][1] + 2, path_style[1][1][2])
+                table.insert(display_array, { parent_path, hl })
+                table.insert(widths, { width = #parent_path })
+            else
+                table.insert(widths, { width = #path_display })
+                table.insert(display_array, path_display)
+            end
+
+            local displayer = entry_display.create {
+                separator = " ",
+                items = widths,
+            }
             local make_display = function()
-                return displayer({
-                    tostring(entry.index),
-                    line,
-                })
+                return displayer(display_array)
             end
             return {
                 value = entry,
@@ -53,16 +73,6 @@ local generate_new_finder = function()
 end
 
 local delete_harpoon_mark = function(prompt_bufnr)
-    local confirmation =
-        vim.fn.input(string.format("Delete current mark(s)? [y/n]: "))
-    if
-        string.len(confirmation) == 0
-        or string.sub(string.lower(confirmation), 0, 1) ~= "y"
-    then
-        print(string.format("Didn't delete mark"))
-        return
-    end
-
     local selection = action_state.get_selected_entry()
     harpoon:list():remove(selection.value)
 
