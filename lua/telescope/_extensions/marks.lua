@@ -59,13 +59,14 @@ local generate_new_finder = function()
             local make_display = function()
                 return displayer(display_array)
             end
+            local cwd = vim.fn.getcwd()
             return {
                 value = entry,
-                ordinal = line,
+                ordinal = cwd .. "/" .. line,
                 display = make_display,
                 lnum = entry.row,
                 col = entry.col,
-                filename = entry.value,
+                filename = cwd .. "/" .. entry.value,
             }
         end,
     })
