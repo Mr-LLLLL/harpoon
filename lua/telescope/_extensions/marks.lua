@@ -7,7 +7,6 @@ local conf = require("telescope.config").values
 local harpoon = require("harpoon")
 local utils = require "telescope.utils"
 local strings = require "plenary.strings"
-local action_utils = require("telescope.actions.utils")
 
 local function filter_empty_string(list)
     local next = {}
