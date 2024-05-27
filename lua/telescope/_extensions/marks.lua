@@ -38,7 +38,7 @@ local generate_new_finder = function()
             table.insert(widths, { width = strings.strdisplaywidth(icon) })
 
             local path_display, path_style = utils.transform_path({}, line)
-            if path_style and type(path_style) == "table" and #path_style > 1 then
+            if path_style and type(path_style) == "table" and #path_style >= 1 then
                 local filename = path_display:sub(1, path_style[1][1][1])
                 table.insert(display_array, filename)
                 table.insert(widths, { width = #filename })
