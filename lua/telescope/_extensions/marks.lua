@@ -59,7 +59,7 @@ local generate_new_finder = function()
             local make_display = function()
                 return displayer(display_array)
             end
-            local cwd = vim.fn.getcwd()
+            local cwd = harpoon.config.default.get_root_dir()
             return {
                 value = entry,
                 ordinal = cwd .. "/" .. line,
